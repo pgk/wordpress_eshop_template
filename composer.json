@@ -39,6 +39,9 @@
     "johnpbloch/wordpress": "4.7",
     "oscarotero/env": "^1.0",
     "roots/wp-password-bcrypt": "1.0.0",
+    "wpackagist-plugin/jetpack": "4.4.2",
+    "wpackagist-plugin/wordpress-seo": "4.0",
+    "wpackagist-plugin/wp-super-cache": "1.4.8",
     "wpackagist-plugin/woocommerce": "2.6.9"
   },
   "require-dev": {
