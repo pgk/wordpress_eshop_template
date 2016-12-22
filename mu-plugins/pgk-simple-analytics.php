@@ -1,17 +1,18 @@
 <?php
 /*
-Plugin Name:  Register Theme Directory
-Plugin URI:   https://roots.io/bedrock/
-Description:  Register default theme directory
+Plugin Name:  Pgk Simple Analytics
+Plugin URI:   https://seerealized.com
+Description:  Simple Analytics MU plugin
 Version:      1.0.0
-Author:       Roots
-Author URI:   https://roots.io/
-License:      MIT License
+Author:       pgk
+Author URI:   https://seerealized.com
+License:      GPL2
 */
 
-// if (!defined('WP_DEFAULT_THEME')) {
-//     register_theme_directory(ABSPATH . 'wp-content/themes');
-// }
+
+if (!defined('ABSPATH')) {
+  exit;
+}
 
 class PgkSimpleAnalytics
 {
@@ -20,17 +21,11 @@ class PgkSimpleAnalytics
     const SIMPLE_ANALYTICS_PAGE = 'simple-analytics-admin';
     const SIMPLE_ANALYTICS_PAGE_TITLE = 'Simple Analytics Settings';
     const GA_ANALYTICS_ID = 'ga_analytics_id';
-    /**
-     * Holds the values to be used in the fields callbacks
-     */
+
     private $options;
 
-    /**
-     * Start up
-     */
     public function __construct()
     {
-      
       if (is_admin()) {
         add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
         add_action( 'admin_init', array( $this, 'page_init' ) );
@@ -47,27 +42,20 @@ class PgkSimpleAnalytics
           empty($simple_analytics_option[self::GA_ANALYTICS_ID])) {
         return;
       }
-      $tracking_code = $simple_analytics_option[self::GA_ANALYTICS_ID];
+      $tracking_code = esc_js($simple_analytics_option[self::GA_ANALYTICS_ID]);
 
       ?>
-
       <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
       ga('create', '<?php echo $tracking_code ?>', 'auto');
       ga('send', 'pageview');
-
     </script>
-
       <?php
     }
 
-    /**
-     * Add options page
-     */
     public function add_plugin_page()
     {
         // This page will be under "Settings"
@@ -104,7 +92,6 @@ class PgkSimpleAnalytics
      */
     public function page_init()
     {
-      // flush_rewrite_rules();
         register_setting(
             self::SIMPLE_ANALYTICS_GROUP, // Option group
             self::SIMPLE_ANALYTICS, // Option name
@@ -124,25 +111,15 @@ class PgkSimpleAnalytics
             array( $this, 'ga_analytics_id_callback' ), // Callback
             self::SIMPLE_ANALYTICS_PAGE, // Page
             'setting_section_id' // Section           
-        );      
-
-        // add_settings_field(
-        //     'title', 
-        //     'Title', 
-        //     array( $this, 'title_callback' ), 
-        //     self::SIMPLE_ANALYTICS_PAGE, 
-        //     'setting_section_id'
-        // );      
+        );    
     }
 
     public function sanitize( $input )
     {
         $new_input = array();
-        if( isset( $input['ga_analytics_id'] ) )
+        if( isset( $input['ga_analytics_id'] ) ) {
             $new_input['ga_analytics_id'] = sanitize_text_field( $input['ga_analytics_id'] );
-
-        // if( isset( $input['title'] ) )
-        //     $new_input['title'] = sanitize_text_field( $input['title'] );
+        }
 
         return $new_input;
     }
@@ -155,9 +132,6 @@ class PgkSimpleAnalytics
         print 'Enter your GA settings below:';
     }
 
-    /** 
-     * Get the settings option array and print one of its values
-     */
     public function ga_analytics_id_callback()
     {
         printf(
@@ -165,17 +139,8 @@ class PgkSimpleAnalytics
             self::SIMPLE_ANALYTICS, isset( $this->options['ga_analytics_id'] ) ? esc_attr( $this->options['ga_analytics_id']) : ''
         );
     }
-
-    /** 
-     * Get the settings option array and print one of its values
-     */
-    public function title_callback()
-    {
-        printf(
-            '<input type="text" id="title" name="my_option_name[title]" value="%s" />',
-            isset( $this->options['title'] ) ? esc_attr( $this->options['title']) : ''
-        );
-    }
 }
 
 $simple_analytics = new PgkSimpleAnalytics();
+
+register_activation_hook( __FILE__, 'flush_rewrite_rules' );
